@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.Random;
 
 public class KlienciFederate {
@@ -123,6 +124,8 @@ public class KlienciFederate {
 
         LogicalTime time = convertTime( timeStep );
         rtiamb.sendInteraction( interactionHandle, parameters, "tag".getBytes(), time );
+        rtiamb.tick();
+        log("Wysyłam klienta:" + Arrays.toString(id) + " Czas= " + time);
     }
 
     private void publishAndSubscribe() throws RTIexception {

@@ -24,7 +24,7 @@ public class RestauracjaFederate {
     private final double timeStep           = 10.0;
 
     private int storageHlaHandle;
-    private int tables                       = 10;
+
     public void runFederate() throws RTIexception {
         rtiamb = RtiFactoryFactory.getRtiFactory().createRtiAmbassador();
 
@@ -74,12 +74,12 @@ public class RestauracjaFederate {
             double timeToAdvance = fedamb.federateTime + timeStep;
             advanceTime(timeToAdvance);
             //sendInteraction(fedamb.federateTime + fedamb.federateLookahead);
-            if(fedamb.grantedTime == timeToAdvance) {
+            /*if(fedamb.grantedTime == timeToAdvance) {
                 timeToAdvance += fedamb.federateLookahead;
                 log("Updating stock at time: " + timeToAdvance);
                 updateHLAObject(timeToAdvance);
                 fedamb.federateTime = timeToAdvance;
-            }
+            }*/
             rtiamb.tick();
         }
 
@@ -102,7 +102,7 @@ public class RestauracjaFederate {
         }
     }
 
-    public void addToStock(int qty) {
+    /*public void addToStock(int qty) {
         this.tables += qty;
         log("Added "+ qty + " at time: "+ fedamb.federateTime +", current stock: " + this.tables);
     }
@@ -118,7 +118,7 @@ public class RestauracjaFederate {
         }
 
 
-    }
+    }*/
     private void enableTimePolicy() throws RTIexception
     {
         LogicalTime currentTime = convertTime( fedamb.federateTime );
@@ -160,9 +160,9 @@ public class RestauracjaFederate {
     }
 
     private void publishAndSubscribe() throws RTIexception {
-        int getProductHandle = rtiamb.getInteractionClassHandle( "InteractionRoot.ZajecieStolika" );
-        fedamb.getProductHandle = getProductHandle;
-        rtiamb.subscribeInteractionClass(getProductHandle);
+        int zajecieStolikaHandle = rtiamb.getInteractionClassHandle( "InteractionRoot.ZajecieStolika" );
+        fedamb.zajecieStolikaHandle = zajecieStolikaHandle;
+        rtiamb.subscribeInteractionClass(zajecieStolikaHandle);
         int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.Storage");
         int stockHandle    = rtiamb.getAttributeHandle( "stock", classHandle );
 
@@ -172,7 +172,7 @@ public class RestauracjaFederate {
         rtiamb.subscribeObjectClassAttributes(classHandle, attributes);
 
         int classHandle1 = rtiamb.getObjectClassHandle("ObjectRoot.Table");
-        int stockHandle1    = rtiamb.getAttributeHandle( "stock", classHandle );
+        int stockHandle1    = rtiamb.getAttributeHandle( "stock", classHandle1 );
 
         AttributeHandleSet attributes1 =
                 RtiFactoryFactory.getRtiFactory().createAttributeHandleSet();
@@ -180,13 +180,13 @@ public class RestauracjaFederate {
         rtiamb.publishObjectClass(classHandle1, attributes1);
     }
 
-    private void updateHLAObject(double time) throws RTIexception{
+    public void updateHLAObject(double time) throws RTIexception{
         SuppliedAttributes attributes =
                 RtiFactoryFactory.getRtiFactory().createSuppliedAttributes();
 
         int classHandle = rtiamb.getObjectClass(storageHlaHandle);
         int stockHandle = rtiamb.getAttributeHandle( "stock", classHandle );
-        byte[] stockValue = EncodingHelpers.encodeInt(tables);
+        byte[] stockValue = EncodingHelpers.encodeInt(fedamb.tables);
 
         attributes.add(stockHandle, stockValue);
         LogicalTime logicalTime = convertTime( time );
@@ -228,7 +228,7 @@ public class RestauracjaFederate {
 
     private void log( String message )
     {
-        System.out.println( "KolejkaFederate   : " + message );
+        System.out.println( "RestauracjaFederate   : " + message );
     }
 
     public static void main(String[] args) {

@@ -33,6 +33,8 @@ public class KolejkaAmbassador extends NullFederateAmbassador {
 
     protected boolean running 			 = true;
     protected int dojscieDoKolejkiHandle = 0;
+
+    protected KolejkaFederate kolejkaFederate;
     protected int getProductHandle = 0;
 
     protected ArrayList<ExternalEvent> externalEvents = new ArrayList<>();
@@ -170,6 +172,8 @@ public class KolejkaAmbassador extends NullFederateAmbassador {
                 builder.append(", attributeValue=");
                 builder.append(EncodingHelpers.decodeInt(theAttributes
                         .getValue(i)));
+                kolejkaFederate.tableStock = EncodingHelpers.decodeInt(theAttributes
+                                .getValue(i));
                 builder.append(", time=");
                 builder.append(theTime);
                 builder.append("\n");

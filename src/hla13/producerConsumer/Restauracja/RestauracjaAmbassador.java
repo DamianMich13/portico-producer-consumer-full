@@ -22,7 +22,10 @@ public class RestauracjaAmbassador extends NullFederateAmbassador {
     protected boolean isReadyToRun       = false;
 
     protected boolean running 			 = true;
-    protected int getProductHandle = 0;
+    protected int zajecieStolikaHandle = 0;
+
+    protected int tables                       = 10;
+    protected RestauracjaFederate restauracjaFederate = new RestauracjaFederate();
 
     private double convertTime( LogicalTime logicalTime )
     {
@@ -94,25 +97,24 @@ public class RestauracjaAmbassador extends NullFederateAmbassador {
                                     ReceivedInteraction theInteraction,
                                     byte[] tag,
                                     LogicalTime theTime,
-                                    EventRetractionHandle eventRetractionHandle )
-    {
-        StringBuilder builder = new StringBuilder( "Interaction Received:" );
-        if(interactionClass == getProductHandle) {
+                                    EventRetractionHandle eventRetractionHandle ) {
+        StringBuilder builder = new StringBuilder("Interaction Received:");
+        if (interactionClass == zajecieStolikaHandle) {
             try {
                 int id = EncodingHelpers.decodeInt(theInteraction.getValue(0));
-                double time =  convertTime(theTime);
+                double time = convertTime(theTime);
 
                 builder.append("Zajecie Stolika , time=" + time);
                 builder.append(" id=").append(id);
-                builder.append( "\n" );
+                builder.append("\n");
+                tables--;
 
             } catch (ArrayIndexOutOfBounds ignored) {
 
             }
 
+            log(builder.toString());
         }
-
-        log( builder.toString() );
     }
 
     public void reflectAttributeValues(int theObject,

@@ -19,8 +19,9 @@ public class KolejkaFederate {
 
     private RTIambassador rtiamb;
     private KolejkaAmbassador fedamb;
-    private final double timeStep           = 10.0;
+    private final double timeStep           = 1.0;
 
+    public int tableStock = 6;
     private int storageHlaHandle;
 
     private int i = 1;
@@ -76,17 +77,20 @@ public class KolejkaFederate {
         while (fedamb.running) {
             double timeToAdvance = fedamb.federateTime + timeStep;
             advanceTime(timeToAdvance);
-            sendInteraction(timeToAdvance + fedamb.federateLookahead);
-            if(fedamb.queue.size() > 0)
-                for(Integer id : fedamb.queue){
-
-                }
-            if(fedamb.grantedTime == timeToAdvance) {
+            fedamb.federateTime = timeToAdvance; // aby zaktualizować czas federata
+            //sendInteraction(timeToAdvance + fedamb.federateLookahead);
+            //timeToAdvance += fedamb.federateLookahead;
+            while(tableStock >0 && !fedamb.queue.isEmpty() && fedamb.grantedTime == timeToAdvance){
+                timeToAdvance += fedamb.federateLookahead;
+                sendInteraction(timeToAdvance);
+                //fedamb.federateTime = timeToAdvance;
+            }
+            /*if(fedamb.grantedTime == timeToAdvance) {
                 timeToAdvance += fedamb.federateLookahead;
                 log("Updating stock at time: " + timeToAdvance);
                 updateHLAObject(timeToAdvance);
                 fedamb.federateTime = timeToAdvance;
-            }
+            }*/
 
             rtiamb.tick();
         }
@@ -132,7 +136,8 @@ public class KolejkaFederate {
         SuppliedParameters parameters =
                 RtiFactoryFactory.getRtiFactory().createSuppliedParameters();
         Random random = new Random();
-        byte[] id = EncodingHelpers.encodeInt(i++);
+        byte[] id = EncodingHelpers.encodeInt(fedamb.queue.getFirst());
+        fedamb.queue.removeFirst();
 
         int interactionHandle = rtiamb.getInteractionClassHandle("InteractionRoot.ZajecieStolika");
         int idHandle = rtiamb.getParameterHandle( "id", interactionHandle );
@@ -141,6 +146,7 @@ public class KolejkaFederate {
 
         LogicalTime time = convertTime( timeStep );
         rtiamb.sendInteraction( interactionHandle, parameters, "tag".getBytes(), time );
+        log("Wysłano Zajecie stolika przez: " + id + " czas: " + time );
     }
 
     private void advanceTime( double timeToAdvance ) throws RTIexception {
@@ -167,7 +173,7 @@ public class KolejkaFederate {
         //rtiamb.subscribeObjectClassAttributes(classHandle, attributes);
 
         int classHandle1 = rtiamb.getObjectClassHandle("ObjectRoot.Table");
-        int stockHandle1    = rtiamb.getAttributeHandle( "stock", classHandle );
+        int stockHandle1    = rtiamb.getAttributeHandle( "stock", classHandle1 );
 
         AttributeHandleSet attributes1 =
                 RtiFactoryFactory.getRtiFactory().createAttributeHandleSet();

@@ -73,6 +73,42 @@ public class RestauracjaFederate {
         while (fedamb.running) {
             double timeToAdvance = fedamb.federateTime + timeStep;
             advanceTime(timeToAdvance);
+
+            // tutaj w petli sprawdzi dla kazdego stolika czy czas federata jest wiekszy niz czas zakonczenia pierwszego posiłku
+            // jesli czas jest wiekszy sprawdź czy ma drugi posilek
+            // nie ma drugiego posilku - klient sobie idzie
+            // ma drugi posilek - sprawdz czy czas federata jest wiekszy niz czas drugiego posilku
+            // jesli jest to klient sobie idzie
+            // jesli nie to sie nic nie dzieje
+            // fedamb.federateTime - czas federata
+
+            // Jezeli sa zajete stoliki
+            if (fedamb.tablesArray.size()>0){
+                // Przelec przez wszystkie stoliki
+                for (Table table : fedamb.tablesArray){
+                    // Jezeli czas federata wiekszy od czasu zjedzenie
+                    if (fedamb.federateTime>table.getMealTime()){
+                        // Jezeli ma drugi posilek
+                        if (table.getSecondMealTime()>0){
+                            // Jezeli czas federata jest wiekszy niz czas posilku to sobie idzie
+                            if (fedamb.federateTime> table.getSecondMealTime()){
+                                fedamb.tablesArray.remove(table);
+                                fedamb.tables++;
+                            }
+                            // Jak czas nie jest wiekszy to nic sie nie dzieje
+
+                        }
+                        // Jak nie ma drugiego posilku to sobie idzie
+                        else {
+                            fedamb.tablesArray.remove(table);
+                            fedamb.tables++;
+                        }
+                    }
+                }
+            }
+
+
+
             //sendInteraction(fedamb.federateTime + fedamb.federateLookahead);
             /*if(fedamb.grantedTime == timeToAdvance) {
                 timeToAdvance += fedamb.federateLookahead;
@@ -233,7 +269,8 @@ public class RestauracjaFederate {
 
     public static void main(String[] args) {
         try {
-            new RestauracjaFederate().runFederate();
+            new RestauracjaFederate().
+                    runFederate();
         } catch (RTIexception rtIexception) {
             rtIexception.printStackTrace();
         }

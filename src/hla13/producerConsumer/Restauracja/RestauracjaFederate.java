@@ -1,4 +1,4 @@
-package hla13.producerConsumer.consumer;
+package hla13.producerConsumer.Restauracja;
 
 import hla.rti.*;
 import hla.rti.jlc.EncodingHelpers;
@@ -15,16 +15,16 @@ import java.util.Random;
 /**
  * Created by Michal on 2016-04-27.
  */
-public class ConsumerFederate {
+public class RestauracjaFederate {
 
     public static final String READY_TO_RUN = "ReadyToRun";
 
     private RTIambassador rtiamb;
-    private ConsumerAmbassador fedamb;
+    private RestauracjaAmbassador fedamb;
     private final double timeStep           = 10.0;
 
     private int storageHlaHandle;
-    private int stock                       = 10;
+    private int tables                       = 10;
     public void runFederate() throws RTIexception {
         rtiamb = RtiFactoryFactory.getRtiFactory().createRtiAmbassador();
 
@@ -46,9 +46,9 @@ public class ConsumerFederate {
             return;
         }
 
-        fedamb = new ConsumerAmbassador();
-        rtiamb.joinFederationExecution( "ConsumerFederate", "ExampleFederation", fedamb );
-        log( "Joined Federation as ProducerFederate");
+        fedamb = new RestauracjaAmbassador();
+        rtiamb.joinFederationExecution( "RestauracjaFederate", "ExampleFederation", fedamb );
+        log( "Joined Federation as KlienciFederate");
 
         rtiamb.registerFederationSynchronizationPoint( READY_TO_RUN, null );
 
@@ -103,18 +103,18 @@ public class ConsumerFederate {
     }
 
     public void addToStock(int qty) {
-        this.stock += qty;
-        log("Added "+ qty + " at time: "+ fedamb.federateTime +", current stock: " + this.stock);
+        this.tables += qty;
+        log("Added "+ qty + " at time: "+ fedamb.federateTime +", current stock: " + this.tables);
     }
 
     public void getFromStock(int qty) {
 
-        if(this.stock - qty < 0) {
+        if(this.tables - qty < 0) {
             log("Not enough product at stock");
         }
         else {
-            this.stock -= qty;
-            log("Removed "+ qty + " at time: "+ fedamb.federateTime +", current stock: " + this.stock);
+            this.tables -= qty;
+            log("Removed "+ qty + " at time: "+ fedamb.federateTime +", current stock: " + this.tables);
         }
 
 
@@ -170,6 +170,14 @@ public class ConsumerFederate {
                 RtiFactoryFactory.getRtiFactory().createAttributeHandleSet();
         attributes.add( stockHandle );
         rtiamb.subscribeObjectClassAttributes(classHandle, attributes);
+
+        int classHandle1 = rtiamb.getObjectClassHandle("ObjectRoot.Table");
+        int stockHandle1    = rtiamb.getAttributeHandle( "stock", classHandle );
+
+        AttributeHandleSet attributes1 =
+                RtiFactoryFactory.getRtiFactory().createAttributeHandleSet();
+        attributes1.add( stockHandle1 );
+        rtiamb.publishObjectClass(classHandle1, attributes1);
     }
 
     private void updateHLAObject(double time) throws RTIexception{
@@ -178,7 +186,7 @@ public class ConsumerFederate {
 
         int classHandle = rtiamb.getObjectClass(storageHlaHandle);
         int stockHandle = rtiamb.getAttributeHandle( "stock", classHandle );
-        byte[] stockValue = EncodingHelpers.encodeInt(stock);
+        byte[] stockValue = EncodingHelpers.encodeInt(tables);
 
         attributes.add(stockHandle, stockValue);
         LogicalTime logicalTime = convertTime( time );
@@ -220,12 +228,12 @@ public class ConsumerFederate {
 
     private void log( String message )
     {
-        System.out.println( "StorageFederate   : " + message );
+        System.out.println( "KolejkaFederate   : " + message );
     }
 
     public static void main(String[] args) {
         try {
-            new ConsumerFederate().runFederate();
+            new RestauracjaFederate().runFederate();
         } catch (RTIexception rtIexception) {
             rtIexception.printStackTrace();
         }

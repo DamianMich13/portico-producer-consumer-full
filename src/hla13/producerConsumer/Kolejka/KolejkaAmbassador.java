@@ -1,20 +1,29 @@
-package hla13.producerConsumer.consumer;
+package hla13.producerConsumer.Kolejka;
 
 import hla.rti.*;
 import hla.rti.jlc.EncodingHelpers;
 import hla.rti.jlc.NullFederateAmbassador;
 import hla13.Example13Federate;
-import hla13.producerConsumer.storage.ExternalEvent;
 import org.portico.impl.hla13.types.DoubleTime;
 
-/**
- * Created by Michal on 2016-04-27.
- */
-public class ConsumerAmbassador extends NullFederateAmbassador {
+import java.util.ArrayList;
+import java.util.LinkedList;
 
+
+public class KolejkaAmbassador extends NullFederateAmbassador {
+
+    //----------------------------------------------------------
+    //                    STATIC VARIABLES
+    //----------------------------------------------------------
+
+    //----------------------------------------------------------
+    //                   INSTANCE VARIABLES
+    //----------------------------------------------------------
+    // these variables are accessible in the package
     protected double federateTime        = 0.0;
-    protected double federateLookahead   = 1.0;
     protected double grantedTime         = 0.0;
+    protected double federateLookahead   = 1.0;
+
     protected boolean isRegulating       = false;
     protected boolean isConstrained      = false;
     protected boolean isAdvancing        = false;
@@ -23,7 +32,12 @@ public class ConsumerAmbassador extends NullFederateAmbassador {
     protected boolean isReadyToRun       = false;
 
     protected boolean running 			 = true;
+    protected int dojscieDoKolejkiHandle = 0;
     protected int getProductHandle = 0;
+
+    protected ArrayList<ExternalEvent> externalEvents = new ArrayList<>();
+
+    protected LinkedList<Integer> queue = new LinkedList<Integer>();
 
     private double convertTime( LogicalTime logicalTime )
     {
@@ -77,9 +91,10 @@ public class ConsumerAmbassador extends NullFederateAmbassador {
 
     public void timeAdvanceGrant( LogicalTime theTime )
     {
-        this.federateTime = convertTime( theTime );
+        this.grantedTime = convertTime( theTime );
         this.isAdvancing = false;
     }
+
 
     public void receiveInteraction( int interactionClass,
                                     ReceivedInteraction theInteraction,
@@ -98,24 +113,38 @@ public class ConsumerAmbassador extends NullFederateAmbassador {
                                     EventRetractionHandle eventRetractionHandle )
     {
         StringBuilder builder = new StringBuilder( "Interaction Received:" );
-        if(interactionClass == getProductHandle) {
+        if(interactionClass == dojscieDoKolejkiHandle) {
             try {
                 int id = EncodingHelpers.decodeInt(theInteraction.getValue(0));
                 double time =  convertTime(theTime);
+                //externalEvents.add(new ExternalEvent(qty, ExternalEvent.EventType.ADD , time));
+                queue.add(id);
 
-                builder.append("Zajecie Stolika , time=" + time);
+                builder.append("DojscieDoKolejki , time=" + time);
                 builder.append(" id=").append(id);
                 builder.append( "\n" );
+
 
             } catch (ArrayIndexOutOfBounds ignored) {
 
             }
 
+        } else if (interactionClass == getProductHandle) {
+            try {
+                int qty = EncodingHelpers.decodeInt(theInteraction.getValue(0));
+                double time =  convertTime(theTime);
+                externalEvents.add(new ExternalEvent(qty, ExternalEvent.EventType.GET , time));
+                builder.append( "GetProduct , time=" + time );
+                builder.append(" qty=").append(qty);
+                builder.append( "\n" );
+
+            } catch (ArrayIndexOutOfBounds ignored) {
+
+            }
         }
 
         log( builder.toString() );
     }
-
     public void reflectAttributeValues(int theObject,
                                        ReflectedAttributes theAttributes, byte[] tag) {
         reflectAttributeValues(theObject, theAttributes, tag, null, null);

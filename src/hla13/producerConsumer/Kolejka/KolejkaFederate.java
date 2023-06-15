@@ -1,4 +1,4 @@
-package hla13.producerConsumer.storage;
+package hla13.producerConsumer.Kolejka;
 
 
 import hla.rti.*;
@@ -11,15 +11,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.util.Collections;
 import java.util.Random;
 
-public class StorageFederate {
+public class KolejkaFederate {
 
     public static final String READY_TO_RUN = "ReadyToRun";
 
     private RTIambassador rtiamb;
-    private StorageAmbassador fedamb;
+    private KolejkaAmbassador fedamb;
     private final double timeStep           = 10.0;
 
     private int storageHlaHandle;
@@ -48,9 +47,9 @@ public class StorageFederate {
             return;
         }
 
-        fedamb = new StorageAmbassador();
-        rtiamb.joinFederationExecution( "StorageFederate", "ExampleFederation", fedamb );
-        log( "Joined Federation as StorageFederate");
+        fedamb = new KolejkaAmbassador();
+        rtiamb.joinFederationExecution( "KolejkaFederate", "ExampleFederation", fedamb );
+        log( "Joined Federation as KolejkaFederate");
 
         rtiamb.registerFederationSynchronizationPoint( READY_TO_RUN, null );
 
@@ -167,6 +166,13 @@ public class StorageFederate {
         rtiamb.publishObjectClass(classHandle, attributes);
         //rtiamb.subscribeObjectClassAttributes(classHandle, attributes);
 
+        int classHandle1 = rtiamb.getObjectClassHandle("ObjectRoot.Table");
+        int stockHandle1    = rtiamb.getAttributeHandle( "stock", classHandle );
+
+        AttributeHandleSet attributes1 =
+                RtiFactoryFactory.getRtiFactory().createAttributeHandleSet();
+        attributes1.add( stockHandle1 );
+        rtiamb.subscribeObjectClassAttributes(classHandle1, attributes1);
 
         int dojscieDoKolejkiHandle = rtiamb.getInteractionClassHandle( "InteractionRoot.DojscieDoKolejki" );
         fedamb.dojscieDoKolejkiHandle = dojscieDoKolejkiHandle;
@@ -213,12 +219,12 @@ public class StorageFederate {
 
     private void log( String message )
     {
-        System.out.println( "StorageFederate   : " + message );
+        System.out.println( "KolejkaFederate   : " + message );
     }
 
     public static void main(String[] args) {
         try {
-            new StorageFederate().runFederate();
+            new KolejkaFederate().runFederate();
         } catch (Exception e) {
             e.printStackTrace();
         }

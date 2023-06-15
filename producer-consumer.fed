@@ -18,6 +18,9 @@
       (class Storage
         (attribute stock reliable timestamp TestSpace)
       )
+      (class Table
+        (attribute stock reliable timestamp TestSpace)
+      )
     )
   )
   (interactions

@@ -1,4 +1,4 @@
-package hla13.producerConsumer.storage;
+package hla13.producerConsumer.Kolejka;
 
 
 import java.util.Comparator;

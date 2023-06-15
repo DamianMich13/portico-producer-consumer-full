@@ -1,4 +1,4 @@
-package hla13.producerConsumer.storage;
+package hla13.producerConsumer.Restauracja;
 
 import hla.rti.*;
 import hla.rti.jlc.EncodingHelpers;
@@ -6,25 +6,14 @@ import hla.rti.jlc.NullFederateAmbassador;
 import hla13.Example13Federate;
 import org.portico.impl.hla13.types.DoubleTime;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+/**
+ * Created by Michal on 2016-04-27.
+ */
+public class RestauracjaAmbassador extends NullFederateAmbassador {
 
-
-public class StorageAmbassador extends NullFederateAmbassador {
-
-    //----------------------------------------------------------
-    //                    STATIC VARIABLES
-    //----------------------------------------------------------
-
-    //----------------------------------------------------------
-    //                   INSTANCE VARIABLES
-    //----------------------------------------------------------
-    // these variables are accessible in the package
     protected double federateTime        = 0.0;
-    protected double grantedTime         = 0.0;
     protected double federateLookahead   = 1.0;
-
+    protected double grantedTime         = 0.0;
     protected boolean isRegulating       = false;
     protected boolean isConstrained      = false;
     protected boolean isAdvancing        = false;
@@ -33,12 +22,7 @@ public class StorageAmbassador extends NullFederateAmbassador {
     protected boolean isReadyToRun       = false;
 
     protected boolean running 			 = true;
-    protected int dojscieDoKolejkiHandle = 0;
     protected int getProductHandle = 0;
-
-    protected ArrayList<ExternalEvent> externalEvents = new ArrayList<>();
-
-    protected LinkedList<Integer> queue = new LinkedList<Integer>();
 
     private double convertTime( LogicalTime logicalTime )
     {
@@ -92,10 +76,9 @@ public class StorageAmbassador extends NullFederateAmbassador {
 
     public void timeAdvanceGrant( LogicalTime theTime )
     {
-        this.grantedTime = convertTime( theTime );
+        this.federateTime = convertTime( theTime );
         this.isAdvancing = false;
     }
-
 
     public void receiveInteraction( int interactionClass,
                                     ReceivedInteraction theInteraction,
@@ -114,14 +97,12 @@ public class StorageAmbassador extends NullFederateAmbassador {
                                     EventRetractionHandle eventRetractionHandle )
     {
         StringBuilder builder = new StringBuilder( "Interaction Received:" );
-        if(interactionClass == dojscieDoKolejkiHandle) {
+        if(interactionClass == getProductHandle) {
             try {
                 int id = EncodingHelpers.decodeInt(theInteraction.getValue(0));
                 double time =  convertTime(theTime);
-                //externalEvents.add(new ExternalEvent(qty, ExternalEvent.EventType.ADD , time));
-                queue.add(id);
 
-                builder.append("DojscieDoKolejki , time=" + time);
+                builder.append("Zajecie Stolika , time=" + time);
                 builder.append(" id=").append(id);
                 builder.append( "\n" );
 
@@ -129,23 +110,44 @@ public class StorageAmbassador extends NullFederateAmbassador {
 
             }
 
-        } else if (interactionClass == getProductHandle) {
-            try {
-                int qty = EncodingHelpers.decodeInt(theInteraction.getValue(0));
-                double time =  convertTime(theTime);
-                externalEvents.add(new ExternalEvent(qty, ExternalEvent.EventType.GET , time));
-                builder.append( "GetProduct , time=" + time );
-                builder.append(" qty=").append(qty);
-                builder.append( "\n" );
-
-            } catch (ArrayIndexOutOfBounds ignored) {
-
-            }
         }
 
         log( builder.toString() );
     }
-    public void receiveObject(){
 
+    public void reflectAttributeValues(int theObject,
+                                       ReflectedAttributes theAttributes, byte[] tag) {
+        reflectAttributeValues(theObject, theAttributes, tag, null, null);
+    }
+
+    public void reflectAttributeValues(int theObject,
+                                       ReflectedAttributes theAttributes, byte[] tag, LogicalTime theTime,
+                                       EventRetractionHandle retractionHandle) {
+        StringBuilder builder = new StringBuilder("Reflection for object:");
+
+        builder.append(" handle=").append(theObject);
+//		builder.append(", tag=" + EncodingHelpers.decodeString(tag));
+
+        // print the attribute information
+        builder.append(", attributeCount=").append(theAttributes.size());
+        builder.append("\n");
+        for (int i = 0; i < theAttributes.size(); i++) {
+            try {
+                // print the attibute handle
+                builder.append("\tattributeHandle=");
+                builder.append(theAttributes.getAttributeHandle(i));
+                // print the attribute value
+                builder.append(", attributeValue=");
+                builder.append(EncodingHelpers.decodeInt(theAttributes
+                        .getValue(i)));
+                builder.append(", time=");
+                builder.append(theTime);
+                builder.append("\n");
+            } catch (ArrayIndexOutOfBounds aioob) {
+                // won't happen
+            }
+        }
+
+        log(builder.toString());
     }
 }

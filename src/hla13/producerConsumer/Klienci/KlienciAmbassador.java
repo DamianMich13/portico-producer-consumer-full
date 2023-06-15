@@ -1,4 +1,4 @@
-package hla13.producerConsumer.producer;
+package hla13.producerConsumer.Klienci;
 
 import hla.rti.LogicalTime;
 import hla.rti.jlc.NullFederateAmbassador;
@@ -6,7 +6,7 @@ import hla13.Example13Federate;
 import org.portico.impl.hla13.types.DoubleTime;
 
 
-public class ProducerAmbassador extends NullFederateAmbassador {
+public class KlienciAmbassador extends NullFederateAmbassador {
 
     protected double federateTime        = 0.0;
     protected double federateLookahead   = 1.0;

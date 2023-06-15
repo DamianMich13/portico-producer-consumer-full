@@ -1,4 +1,4 @@
-package hla13.producerConsumer.producer;
+package hla13.producerConsumer.Klienci;
 
 
 import hla.rti.*;
@@ -13,12 +13,12 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.Random;
 
-public class ProducerFederate {
+public class KlienciFederate {
 
     public static final String READY_TO_RUN = "ReadyToRun";
 
     private RTIambassador rtiamb;
-    private ProducerAmbassador fedamb;
+    private KlienciAmbassador fedamb;
     private final double timeStep           = 10.0;
     private int i = 1;
 
@@ -43,9 +43,9 @@ public class ProducerFederate {
             return;
         }
 
-        fedamb = new ProducerAmbassador();
-        rtiamb.joinFederationExecution( "ProducerFederate", "ExampleFederation", fedamb );
-        log( "Joined Federation as ProducerFederate");
+        fedamb = new KlienciAmbassador();
+        rtiamb.joinFederationExecution( "KlienciFederate", "ExampleFederation", fedamb );
+        log( "Joined Federation as KlienciFederate");
 
         rtiamb.registerFederationSynchronizationPoint( READY_TO_RUN, null );
 
@@ -165,12 +165,12 @@ public class ProducerFederate {
 
     private void log( String message )
     {
-        System.out.println( "StorageFederate   : " + message );
+        System.out.println( "KolejkaFederate   : " + message );
     }
 
     public static void main(String[] args) {
         try {
-            new ProducerFederate().runFederate();
+            new KlienciFederate().runFederate();
         } catch (RTIexception rtIexception) {
             rtIexception.printStackTrace();
         }

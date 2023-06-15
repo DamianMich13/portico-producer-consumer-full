@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -84,6 +85,8 @@ public class RestauracjaFederate {
 
             // Jezeli sa zajete stoliki
             if (fedamb.tablesArray.size()>0){
+                log("Liczba zajetych stolikow: " + fedamb.tablesArray.size());
+                ArrayList<Table> tablesToRemove = new ArrayList<Table>();
                 // Przelec przez wszystkie stoliki
                 for (Table table : fedamb.tablesArray){
                     // Jezeli czas federata wiekszy od czasu zjedzenie
@@ -92,18 +95,25 @@ public class RestauracjaFederate {
                         if (table.getSecondMealTime()>0){
                             // Jezeli czas federata jest wiekszy niz czas posilku to sobie idzie
                             if (fedamb.federateTime> table.getSecondMealTime()){
-                                fedamb.tablesArray.remove(table);
-                                fedamb.tables++;
+                                tablesToRemove.add(table);
+//                                fedamb.tablesArray.remove(table);
+//                                fedamb.tables++;
                             }
                             // Jak czas nie jest wiekszy to nic sie nie dzieje
 
                         }
                         // Jak nie ma drugiego posilku to sobie idzie
                         else {
-                            fedamb.tablesArray.remove(table);
-                            fedamb.tables++;
+//                            fedamb.tablesArray.remove(table);
+//                            fedamb.tables++;
+                                tablesToRemove.add(table);
                         }
                     }
+                }
+                log("Liczba stolikow do usuniecia: " + tablesToRemove.size());
+                for (Table table : tablesToRemove){
+                    fedamb.tablesArray.remove(table);
+                    fedamb.tables++;
                 }
             }
 

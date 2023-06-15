@@ -120,11 +120,13 @@ public class RestauracjaAmbassador extends NullFederateAmbassador {
                 // Losuje czy chce drugi posilek
                 if (rngGenerator.nextBoolean()){
                     double secondMealTime = rngGenerator.nextInt(gornaGranicaDrugiPosilek-dolnaGranicaDrugiPosilek+1)+dolnaGranicaDrugiPosilek;
-                    Table table = new Table(this.federateTime+mealTime,this.federateTime+mealTime+secondMealTime);
+                    Table table = new Table(time+mealTime,time+mealTime+secondMealTime);
+                    log("Dodano stolik, czas pierwszego posilku: " + table.getMealTime() + ", czas drugiego posilku: " + table.getSecondMealTime());
                     this.tablesArray.add(table);
                 } else {
-                    Table table = new Table(this.federateTime+mealTime,0.0);
+                    Table table = new Table(time+mealTime,0.0);
                     this.tablesArray.add(table);
+                    log("Dodano stolik, czas pierwszego posilku: " + table.getMealTime());
                 }
 
 

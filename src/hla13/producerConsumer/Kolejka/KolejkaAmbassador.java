@@ -8,6 +8,7 @@ import org.portico.impl.hla13.types.DoubleTime;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Random;
 
 
 public class KolejkaAmbassador extends NullFederateAmbassador {
@@ -39,8 +40,11 @@ public class KolejkaAmbassador extends NullFederateAmbassador {
 
     protected ArrayList<ExternalEvent> externalEvents = new ArrayList<>();
 
-    protected LinkedList<Integer> queue = new LinkedList<Integer>();
 
+    protected LinkedList<Integer> queue = new LinkedList<Integer>();
+    protected ArrayList<Klient> klienci = new ArrayList<>();
+
+    protected Random rngGenerator = new Random();
     private double convertTime( LogicalTime logicalTime )
     {
         // PORTICO SPECIFIC!!
@@ -125,6 +129,27 @@ public class KolejkaAmbassador extends NullFederateAmbassador {
                 builder.append("DojscieDoKolejki , time=" + time);
                 builder.append(" id=").append(id);
                 builder.append( "\n" );
+
+                // Zrobic obiekt klienta
+                // Klient moze sie niecierpliwic
+                int klientNiecierpliwyProcent = 50;
+                int szansa = rngGenerator.nextInt(100)+1;
+
+                // Klient niecierpliwy
+                if (szansa<klientNiecierpliwyProcent){
+                    int gornyProg=50;
+                    int dolnyProg=40;
+                    double klientTime = rngGenerator.nextInt(gornyProg-dolnyProg+1)+dolnyProg;
+                    Klient klient = new Klient(id,time+klientTime);
+                    log("Do kolejki przychodzi klient o id: " + id + ",z czasem niecierpliwienia: " + klient.getImpatientTime());
+                    klienci.add(klient);
+                }
+                else {
+                    Klient klient = new Klient(id,0.0);
+                    log("Do kolejki przychodzi klient o id: " + id + ", bez niecierpliwienia");
+                    klienci.add(klient);
+                }
+
 
 
             } catch (ArrayIndexOutOfBounds ignored) {
